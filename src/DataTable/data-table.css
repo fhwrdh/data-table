@@ -2,9 +2,15 @@ table {
   width: 100%;
   border-collapse: collapse;
 }
+table.debug td,
+table.debug th {
+  border: 1px solid red;
+}
+
 caption {
   text-align: left;
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 0.8rem 0;
+  text-transform: uppercase;
 }
 
 thead {
@@ -19,6 +25,7 @@ tr {
 thead > tr {
   border-bottom: 1px solid #ccc;
 }
+
 tbody > tr:not(:last-of-type) {
   border-bottom: 1px solid #eee;
 }
@@ -26,13 +33,67 @@ tbody > tr:not(:last-of-type) {
 td,
 th {
   text-align: left;
-  padding: 4px;
+  padding: 8px 4px;
   border: 0px solid #ccc;
 }
 
 th {
   font-weight: bold;
+  user-select: none;
+}
+
+th .header-cell-wrapper {
+  display: flex;
+  align-items: center;
+}
+.header-cell-wrapper.cell-date,
+.header-cell-wrapper.cell-money,
+.header-cell-wrapper.cell-number {
+  justify-content: flex-end;
+}
+
+th .header-cell-label {
+  margin-right: 4px;
 }
 
 td {
+}
+th.cell-string,
+td.cell-string {
+}
+th.cell-money,
+td.cell-money {
+  text-align: right;
+}
+th.cell-date,
+td.cell-date {
+  text-align: right;
+}
+th.cell-number,
+td.cell-number {
+  text-align: right;
+}
+
+.sorter {
+  display: flex;
+  flex-direction: column;
+}
+.sorter svg {
+  display: block;
+  margin: 0;
+}
+.sorter svg:hover {
+  color: red;
+  display: block;
+  margin: 0;
+}
+.sorter-asc,
+.sorter-desc {
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+.sorter-asc:hover,
+.sorter-desc:hover {
+  border: 1px solid #bbb;
+  background: #ccc;
 }

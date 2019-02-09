@@ -1,4 +1,5 @@
 html {
+  background: #f0f0f0;
 }
 
 .App {
@@ -7,11 +8,8 @@ html {
 }
 
 .example {
-  background: #fff;
   padding: 8px;
   margin: 0 0 1rem 0;
-}
-
-.title {
-  margin: 0 0 0.5rem 0;
+  border: 1px solid #ddd;
+  background: #fff;
 }
