@@ -2,6 +2,7 @@ import React from 'react';
 import * as R from 'ramda';
 import './App.css';
 import {DataTable} from './DataTable';
+import {makeRandomData} from './data';
 import {
   now,
   getMonthName,
@@ -13,6 +14,7 @@ import {
 } from './utils';
 
 const columns = [
+  {label: 'Row', type: 'string', align: 'center'},
   {label: 'First Name'},
   {label: 'Last Name'},
   {label: 'Rank', type: 'number'},
@@ -27,43 +29,44 @@ const columns = [
 ];
 
 const customRenderSortColumns = [
+  {label: 'Row', type: 'number', align: 'center'},
   {
     label: 'First Name (second letter)',
-    sort: i => d => d[i][1],
+    sort: i => d => d[i].value[1],
     format: d => <SecondLetterBold data={d} />,
   },
   {
     label: 'Last Name (last letter)',
-    sort: i => d => R.last(d[i]),
+    sort: i => d => R.last(d[i].value),
     format: d => <LastLetterBold data={d} />,
   },
   {
     label: 'Rank (reversed)',
     type: 'number',
-    sort: i => d => reverseInt(d[i]),
+    sort: i => d => reverseInt(d[i].value),
     format: d => `${d} (${reverse(d)})`,
   },
   {
     label: 'Balance (cents)',
     type: 'money',
-    sort: i => data => (data[i] % 1).toFixed(2),
+    sort: i => data => (data[i].value % 1).toFixed(2),
     format: d => <Money data={d} />,
   },
   {
     label: 'Date (month)',
     type: 'date',
-    sort: i => data => getMonthName(data[i]),
+    sort: i => data => getMonthName(data[i].value),
     format: getMonthName,
   },
 ];
 
 const data = [
-  ['Arthur', 'Ashe', 12, 12.34, now()],
-  ['Barbara', 'Bosell', 34, -56.78, now()],
-  ['Chris', 'Canoza', 56, 901.23, now()],
-  ['Doug', 'Dangger', 78, 45.67, now()],
-  ['Elliot', 'Erwitt', 90, -89.01, now()],
-  ['Fanny', 'Flagg', 1, 234.56, now()],
+  [0, 'Arthur', 'Ashe', 12, 12.34, now()],
+  [1, 'Barbara', 'Bosell', 34, -56.78, now()],
+  [2, 'Chris', 'Canoza', 56, 901.23, now()],
+  [3, 'Doug', 'Dangger', 78, 45.67, now()],
+  [4, 'Elliot', 'Erwitt', 90, -89.01, now()],
+  [5, 'Fanny', 'Flagg', 1, 234.56, now()],
 ];
 
 export default () => (
@@ -86,19 +89,40 @@ export default () => (
     <div className="example">
       <DataTable
         caption="Custom Sorting, Custom Rendering"
-        sortable
         columns={customRenderSortColumns}
         data={data}
+        sortable
       />
     </div>
     <div className="example">
-      <div className="title">Default Filtering</div>
+      <DataTable
+        caption="Basic Global Filtering"
+        columns={columns}
+        data={data}
+        filterable
+      />
+      <p>TODO</p>
+      <ul>
+        <li>initial filter value</li>
+        <li>filter per column</li>
+        <li>regex option (toggleable)</li>
+        <li>highlight match (toggle-able?)</li>
+        <li>column-level opt-out from global filtering (row num)</li>
+      </ul>
     </div>
     <div className="example">
-      <div className="title">Custom Filtering</div>
+      <DataTable
+        caption="Basic Paging"
+        columns={columns}
+        data={makeRandomData(50)}
+        pageable
+      />
     </div>
     <div className="example">
-      <div className="title">With Paging</div>
+      <div className="title">Custom Filtering?</div>
+    </div>
+    <div className="example">
+      <div className="title">Kitchen Sink</div>
     </div>
   </div>
 );

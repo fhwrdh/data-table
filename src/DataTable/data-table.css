@@ -22,7 +22,7 @@ tbody {
 tr {
 }
 
-thead > tr {
+thead > tr.header-row {
   border-bottom: 1px solid #ccc;
 }
 
@@ -51,6 +51,9 @@ th .header-cell-wrapper {
 .header-cell-wrapper.cell-number {
   justify-content: flex-end;
 }
+.header-cell-wrapper.cell-align-center {
+  justify-content: center;
+}
 
 th .header-cell-label {
   margin-right: 4px;
@@ -73,6 +76,9 @@ th.cell-number,
 td.cell-number {
   text-align: right;
 }
+td.cell-align-center {
+  text-align: center;
+}
 
 .sorter {
   display: flex;
@@ -81,9 +87,9 @@ td.cell-number {
 .sorter svg {
   display: block;
   margin: 0;
+  padding: 1px;
 }
 .sorter svg:hover {
-  color: red;
   display: block;
   margin: 0;
 }
@@ -94,6 +100,5 @@ td.cell-number {
 }
 .sorter-asc:hover,
 .sorter-desc:hover {
-  border: 1px solid #bbb;
-  background: #ccc;
+  background: #ddd;
 }

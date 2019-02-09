@@ -25,6 +25,7 @@
   "devDependencies": {
     "@mdi/js": "^3.4.93",
     "@mdi/react": "^1.1.0",
+    "generate-random-data": "0.0.3",
     "ramda": "^0.26.1"
   }
 }

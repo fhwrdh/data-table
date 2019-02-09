@@ -16,7 +16,9 @@ export const SecondLetterBold = ({data}) => {
   return (
     <div>
       {first}
-      <span style={{fontWeight: 800}}>{second}</span>
+      <span style={{fontWeight: 600, borderBottom: '1px solid black'}}>
+        {second}
+      </span>
       {rest}
     </div>
   );
@@ -27,7 +29,9 @@ export const LastLetterBold = ({data}) => {
   return (
     <div>
       {rest}
-      <span style={{fontWeight: 800}}>{last}</span>
+      <span style={{fontWeight: 600, borderBottom: '1px solid black'}}>
+        {last}
+      </span>
     </div>
   );
 };
