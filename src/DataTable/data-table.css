@@ -102,3 +102,23 @@ td.cell-align-center {
 .sorter-desc:hover {
   background: #ddd;
 }
+
+.paging {
+  display: flex;
+  align-items: center;
+}
+.paging-controls {
+  display: flex;
+  align-items: center;
+  margin: 0 8px;
+}
+.paging-page {
+  margin: 0 4px;
+}
+.paging-button {
+  font-size: 1rem;
+  border: 0;
+  border-radius: 0;
+  margin: 4px;
+  padding: 4px;
+}
