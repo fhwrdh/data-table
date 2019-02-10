@@ -114,7 +114,7 @@ export default () => (
       <DataTable
         caption="Basic Paging"
         columns={columns}
-        data={makeRandomData(50)}
+        data={makeRandomData(54)}
         pageable
       />
     </div>

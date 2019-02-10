@@ -1,4 +1,7 @@
 import React from 'react';
+import * as R from 'ramda';
+
+export const mapIndex = R.addIndex(R.map);
 
 export const now = () => {
   return new Date(Date.now() - Math.round(Math.random() * Date.now()));
