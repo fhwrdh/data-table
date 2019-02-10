@@ -85,6 +85,10 @@ export default () => (
         columns={columns}
         data={data}
       />
+      <p>TODO</p>
+      <ul>
+        <li>active sort indicator</li>
+      </ul>
     </div>
     <div className="example">
       <DataTable

@@ -1,4 +1,4 @@
-import React, {useReducer} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import * as R from 'ramda';
 import {createActions, handleActions} from 'redux-actions';
 
@@ -81,7 +81,7 @@ const sortView = (direction, columnData, colIndex, view) => {
 };
 
 const actions = createActions({
-  dataView: {
+  data: {
     set: undefined,
   },
   sort: (direction, colIndex) => ({direction, colIndex}),
@@ -98,43 +98,77 @@ const actions = createActions({
   },
 });
 
-const makeReducer = initialState =>
-  handleActions(
-    {
-      [actions.paging.pageSize.set]: (state, payload) => ({
-        ...state,
+const debug = f => (...args) => {
+  console.log('A: ', args[1]);
+  return f.apply(null, args);
+};
+
+const reducer = handleActions(
+  {
+    [actions.paging.pageSize.set]: debug((state, {payload}) => ({
+      ...state,
+      pageData: {
+        ...state.pageData,
         pageSize: payload,
-      }),
-      [actions.paging.currentPage.set]: (state, {payload}) => ({
-        ...state,
+      },
+    })),
+    [actions.paging.currentPage.set]: debug((state, {payload}) => ({
+      ...state,
+      pageData: {
+        ...state.pageData,
         currentPage: payload,
-      }),
-      [actions.filter.set]: (state, {payload}) => ({
-        ...state,
+      },
+    })),
+    [actions.filter.set]: debug((state, {payload}) => ({
+      ...state,
+      filterData: {
+        ...state.filterData,
         filter: payload,
-        dataView: state.filterFunc(payload, state.initialData),
-      }),
-      [actions.dataView.set]: (state, {payload}) => ({
+      },
+
+      dataView: state.filterData.filterFunc(payload, state.formattedData),
+    })),
+    [actions.sort]: debug((state, {payload}) => {
+      const {direction, colIndex} = payload;
+      return {
         ...state,
-        dataView: payload,
-      }),
-      [actions.sort]: (state, {payload}) => {
-        const {direction, colIndex} = payload;
-        const sortedView = sortView(
-          state.sortMap[direction],
+        sortData: {
+          ...state.sortData,
+          ...payload,
+        },
+
+        dataView: sortView(
+          state.sortData.sortMap[direction],
           state.columns[colIndex],
           colIndex,
           state.dataView,
-        );
-        return {
-          ...state,
-          dataView: sortedView,
-          currentSort: payload,
-        };
-      },
-    },
-    initialState,
-  );
+        ),
+      };
+    }),
+    [actions.data.set]: debug((state, {payload: data}) => {
+      const formatted = formatData(state.columns, data);
+      const dv = calcDataView(
+        formatted,
+        state.filterData,
+        state.sortData,
+        state.pageData,
+      );
+      return {
+        ...state,
+        rawData: data,
+        formattedData: formatted,
+        dataView: formatted,
+        // todo: reset the paging data...
+        totalPages: Math.ceil(formatted.length / state.pageSize),
+      };
+    }),
+  },
+  {},
+);
+
+const calcDataView = (formattedData, filterData, sortData, pageData) => {
+  return formattedData;
+};
 
 export const DataTable = ({
   caption = 'table caption required',
@@ -147,60 +181,53 @@ export const DataTable = ({
   currentPage = 1,
   pageSize = 10,
 }) => {
-  // sort based on the raw data, sorting function
+  // sort based on the raw data + sorting function
   // filter based on the formatted data
   const formattedData = formatData(columns, data);
 
   const initialState = {
-    currentPage,
-    pageSize,
-    totalPages: Math.ceil(formattedData.length / pageSize),
-    filter: '',
-    filterFunc,
-    initialData: formattedData,
-    dataView: formattedData,
-    columns,
-    currentSort: {},
-    sortMap: {
-      asc: R.ascend,
-      desc: R.descend,
+    pageData: {
+      currentPage,
+      pageSize,
+      totalPages: Math.ceil(formattedData.length / pageSize),
     },
+    filterData: {
+      filter: '',
+      filterFunc,
+    },
+    sortData: {
+      direction: '',
+      colIndex: undefined,
+      sortMap: {
+        asc: R.ascend,
+        desc: R.descend,
+      },
+    },
+    // data
+    columns,
+    rawData: [],
+    formattedData: [],
+    dataView: [],
   };
-
-  const [state, dispatch] = useReducer(makeReducer(initialState), initialState);
-
-  const filterRow = filterable ? (
-    <tr className="filter-row">
-      <th>
-        <Filter
-          onChange={filterVal => dispatch(actions.filter.set(filterVal))}
-          value={state.filter}
-        />
-      </th>
-    </tr>
-  ) : null;
-
-  const pagingRow = pageable ? (
-    <tr>
-      <td colSpan={columns.length}>
-        <Paging
-          pageSize={state.pageSize}
-          onPageSizeChange={size => dispatch(actions.paging.pageSize.set(size))}
-          currentPage={state.currentPage}
-          totalPages={state.totalPages}
-          onSetCurrentPage={pageNumber =>
-            dispatch(actions.paging.currentPage.set(pageNumber))
-          }
-        />
-      </td>
-    </tr>
-  ) : null;
+  const [state, dispatch] = useReducer(reducer, initialState);
+  useEffect(() => {
+    dispatch(actions.data.set(data));
+  }, [data]);
 
   return (
     <table className="">
       <caption>{caption}</caption>
       <thead>
-        {filterRow}
+        {filterable && (
+          <tr className="filter-row">
+            <th>
+              <Filter
+                onChange={filterVal => dispatch(actions.filter.set(filterVal))}
+                value={state.filterData.filter}
+              />
+            </th>
+          </tr>
+        )}
         <tr className="header-row">
           {mapIndex((c, i) => (
             <HeaderCell
@@ -218,7 +245,25 @@ export const DataTable = ({
           state.dataView,
         )}
       </tbody>
-      <tfoot>{pagingRow}</tfoot>
+      <tfoot>
+        {pageable && (
+          <tr>
+            <td colSpan={columns.length}>
+              <Paging
+                pageSize={state.pageData.pageSize}
+                onPageSizeChange={size =>
+                  dispatch(actions.paging.pageSize.set(size))
+                }
+                currentPage={state.pageData.currentPage}
+                totalPages={state.pageData.totalPages}
+                onSetCurrentPage={pageNumber =>
+                  dispatch(actions.paging.currentPage.set(pageNumber))
+                }
+              />
+            </td>
+          </tr>
+        )}
+      </tfoot>
     </table>
   );
 };
