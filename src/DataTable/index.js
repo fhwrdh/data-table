@@ -65,58 +65,64 @@ export const DataTable = ({
   }, [data]);
 
   return (
-    <table className="">
-      <caption>{caption}</caption>
-      <thead>
-        {filterable && (
-          <tr className="filter-row">
-            <th>
-              <Filter
-                onChange={filterVal => dispatch(actions.filter.set(filterVal))}
-                value={state.filterData.filter}
-                filteredCount={state.filteredCount}
-                totalCount={state.totalCount}
-              />
-            </th>
-          </tr>
-        )}
-        <tr className="header-row">
-          {mapIndex((c, i) => (
-            <HeaderCell
-              key={i}
-              sortable={sortable}
-              onAsc={() => dispatch(actions.sort('asc', i))}
-              onDesc={() => dispatch(actions.sort('desc', i))}
-              columnData={columns[i]}
-              sortData={state.sortData}
-            />
-          ))(columns)}
-        </tr>
-      </thead>
-      <tbody>
-        {mapIndex((r, i) => <Row key={i} rowData={r} columnData={columns} />)(
-          state.dataView,
-        )}
-      </tbody>
-      <tfoot>
-        {pageable && (
-          <tr>
-            <td colSpan={columns.length}>
-              <Paging
-                filteredCount={state.filteredCount}
-                totalCount={state.totalCount}
-                pageData={state.pageData}
-                onPageSizeChange={size =>
-                  dispatch(actions.paging.pageSize.set(size))
-                }
-                onSetCurrentPage={pageNumber =>
-                  dispatch(actions.paging.currentPage.set(pageNumber))
-                }
-              />
-            </td>
-          </tr>
-        )}
-      </tfoot>
-    </table>
+    <div className="data-table">
+      <div className="data-table-container">
+        <table className="table">
+          <caption>{caption}</caption>
+          <thead>
+            {filterable && (
+              <tr className="filter-row">
+                <th>
+                  <Filter
+                    onChange={filterVal =>
+                      dispatch(actions.filter.set(filterVal))
+                    }
+                    value={state.filterData.filter}
+                    filteredCount={state.filteredCount}
+                    totalCount={state.totalCount}
+                  />
+                </th>
+              </tr>
+            )}
+            <tr className="header-row">
+              {mapIndex((c, i) => (
+                <HeaderCell
+                  key={i}
+                  sortable={sortable}
+                  onAsc={() => dispatch(actions.sort('asc', i))}
+                  onDesc={() => dispatch(actions.sort('desc', i))}
+                  columnData={columns[i]}
+                  sortData={state.sortData}
+                />
+              ))(columns)}
+            </tr>
+          </thead>
+          <tbody>
+            {mapIndex((r, i) => (
+              <Row key={i} rowData={r} columnData={columns} />
+            ))(state.dataView)}
+          </tbody>
+          <tfoot>
+            {pageable && (
+              <tr>
+                <td colSpan={columns.length}>
+                  <Paging
+                    filteredCount={state.filteredCount}
+                    totalCount={state.totalCount}
+                    pageData={state.pageData}
+                    onPageSizeChange={size =>
+                      dispatch(actions.paging.pageSize.set(size))
+                    }
+                    onSetCurrentPage={pageNumber =>
+                      dispatch(actions.paging.currentPage.set(pageNumber))
+                    }
+                  />
+                </td>
+              </tr>
+            )}
+          </tfoot>
+        </table>
+      </div>
+    </div>
   );
 };

@@ -1,9 +1,15 @@
-table {
+.data-table {
+  max-width: 100vw;
+}
+.data-table-container {
+  overflow-x: auto;
+}
+.table {
   width: 100%;
   border-collapse: collapse;
 }
-table.debug td,
-table.debug th {
+.table.debug td,
+.table.debug th {
   border: 1px solid red;
 }
 
