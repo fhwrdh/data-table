@@ -89,6 +89,7 @@ export default () => (
       <ul>
         <li>column-level sorting config</li>
         <li>sortable indicator (hover?)</li>
+        <li>initial sort column config</li>
       </ul>
     </div>
     <div className="example">
