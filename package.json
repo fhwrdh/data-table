@@ -27,6 +27,7 @@
     "@mdi/react": "^1.1.0",
     "generate-random-data": "0.0.3",
     "ramda": "^0.26.1",
+    "react-select": "^2.3.0",
     "redux-actions": "^2.6.4"
   }
 }

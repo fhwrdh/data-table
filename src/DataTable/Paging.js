@@ -1,20 +1,35 @@
 import React from 'react';
-import {mapIndex} from '../utils';
+import * as R from 'ramda';
+import Select from 'react-select';
 
 export const Paging = ({pageData, onPageSizeChange, onSetCurrentPage}) => {
   const {pageSize, currentPage, totalPages, pageSizeOptions} = pageData;
+  const colorOverride = '#999';
   return (
     <div className="paging">
       <div>
-        <select
-          value={pageSize}
-          onChange={e => onPageSizeChange(e.target.value)}>
-          {mapIndex((size, index) => (
-            <option key={index} value={size}>
-              {size}
-            </option>
-          ))(pageSizeOptions)}
-        </select>
+        <Select
+          value={{value: pageSize, label: `${pageSize} per page`}}
+          options={R.map(value => ({value, label: `${value} per page`}))(
+            pageSizeOptions,
+          )}
+          styles={{
+            control: provided => ({
+              ...provided,
+              minWidth: '150px',
+              borderColor: colorOverride,
+            }),
+            dropdownIndicator: provided => ({
+              ...provided,
+              color: colorOverride,
+            }),
+            indicatorSeparator: provided => ({
+              ...provided,
+              background: colorOverride,
+            }),
+          }}
+          onChange={e => onPageSizeChange(e.value)}
+        />
       </div>
       <div className="paging-controls">
         <button
