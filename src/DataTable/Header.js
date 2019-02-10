@@ -23,7 +23,7 @@ export const HeaderCell = ({sortData, columnData, sortable, onAsc, onDesc}) => {
   // console.log({sortData, columnData, activeSort, activeDirection, onClick});
 
   return (
-    <th className={`cell-${type}`}>
+    <th scope="col" className={`cell-${type}`}>
       <div className={`header-cell-wrapper cell-${type} ${alignment}`}>
         {sortable ? (
           <span onClick={onClick} className={`header-cell-label sortable`}>
