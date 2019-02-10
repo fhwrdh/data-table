@@ -74,6 +74,7 @@ const filterData = (filterVal, dv) => {
 };
 
 const sortView = (direction, columnData, colIndex, view) => {
+  if (!columnData) return view;
   const comparator = columnData.sort
     ? columnData.sort(colIndex)
     : R.path([colIndex, 'value']);
@@ -99,25 +100,43 @@ const actions = createActions({
 });
 
 const debug = f => (...args) => {
-  console.log('A: ', args[1]);
+  console.log('A: ', typeof args[1], args[1]);
   return f.apply(null, args);
 };
 
 const reducer = handleActions(
   {
-    [actions.paging.pageSize.set]: debug((state, {payload}) => ({
-      ...state,
-      pageData: {
+    [actions.paging.pageSize.set]: debug((state, {payload}) => {
+      const newTotalPages = Math.ceil(state.formattedData.length / payload);
+      const newPageData = {
         ...state.pageData,
-        pageSize: payload,
-      },
-    })),
+        pageSize: Number(payload),
+        totalPages: newTotalPages,
+        currentPage: 1,
+      };
+      return {
+        ...state,
+        pageData: newPageData,
+        dataView: calcDataView(
+          state.formattedData,
+          state.filterData,
+          state.sortData,
+          newPageData,
+        ),
+      };
+    }),
     [actions.paging.currentPage.set]: debug((state, {payload}) => ({
       ...state,
       pageData: {
         ...state.pageData,
         currentPage: payload,
       },
+      dataView: calcDataView(
+        state.formattedData,
+        state.filterData,
+        state.sortData,
+        {...state.pageData, currentPage: payload},
+      ),
     })),
     [actions.filter.set]: debug((state, {payload}) => ({
       ...state,
@@ -125,23 +144,28 @@ const reducer = handleActions(
         ...state.filterData,
         filter: payload,
       },
-
-      dataView: state.filterData.filterFunc(payload, state.formattedData),
+      dataView: calcDataView(
+        state.formattedData,
+        {...state.filterData, filter: payload},
+        state.sortData,
+        state.pageData,
+      ),
     })),
     [actions.sort]: debug((state, {payload}) => {
-      const {direction, colIndex} = payload;
+      const {colIndex} = payload;
+      const newSortData = {
+        ...state.sortData,
+        ...payload,
+        column: state.columns[colIndex],
+      };
       return {
         ...state,
-        sortData: {
-          ...state.sortData,
-          ...payload,
-        },
-
-        dataView: sortView(
-          state.sortData.sortMap[direction],
-          state.columns[colIndex],
-          colIndex,
-          state.dataView,
+        sortData: newSortData,
+        dataView: calcDataView(
+          state.formattedData,
+          state.filterData,
+          newSortData,
+          state.pageData,
         ),
       };
     }),
@@ -157,8 +181,9 @@ const reducer = handleActions(
         ...state,
         rawData: data,
         formattedData: formatted,
-        dataView: formatted,
-        // todo: reset the paging data...
+        dataView: dv,
+
+        // todo: reset all the filtering, sorting, paging data...
         totalPages: Math.ceil(formatted.length / state.pageSize),
       };
     }),
@@ -166,9 +191,29 @@ const reducer = handleActions(
   {},
 );
 
-const calcDataView = (formattedData, filterData, sortData, pageData) => {
-  return formattedData;
+const filterWith = filterData => data =>
+  filterData.filterFunc(filterData.filter, data);
+
+const sortWith = sortData => data =>
+  sortView(
+    sortData.sortMap[sortData.direction],
+    sortData.column,
+    sortData.colIndex,
+    data,
+  );
+
+const pageWith = pageData => data => {
+  const begin = (pageData.currentPage - 1) * pageData.pageSize;
+  const end = begin + pageData.pageSize;
+  return R.slice(begin, end)(data);
 };
+
+const calcDataView = (formattedData, filterData, sortData, pageData) =>
+  R.pipe(
+    filterWith(filterData),
+    sortWith(sortData),
+    pageWith(pageData),
+  )(formattedData);
 
 export const DataTable = ({
   caption = 'table caption required',
@@ -198,6 +243,7 @@ export const DataTable = ({
     sortData: {
       direction: '',
       colIndex: undefined,
+      column: undefined,
       sortMap: {
         asc: R.ascend,
         desc: R.descend,
