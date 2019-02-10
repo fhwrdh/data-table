@@ -103,6 +103,19 @@ td.cell-align-center {
   background: #ddd;
 }
 
+.filter {
+  display: flex;
+  align-items: center;
+}
+.filter-input {
+}
+.filter-counts {
+  margin-left: 8px;
+  font-weight: initial;
+  font-style: italic;
+  font-size: 0.9em;
+}
+
 .paging {
   display: flex;
   align-items: center;
@@ -111,6 +124,9 @@ td.cell-align-center {
   display: flex;
   align-items: center;
   margin: 0 8px;
+}
+.paging-total-records {
+  margin-right: 12px;
 }
 .paging-page {
   margin: 0 4px;

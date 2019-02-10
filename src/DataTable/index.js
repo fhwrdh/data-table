@@ -57,6 +57,9 @@ export const DataTable = ({
     columns,
     rawData: [],
     formattedData: [],
+    totalCount: undefined,
+    filteredData: [],
+    filteredCount: undefined,
     dataView: [],
 
     filterData: resetFilterData(filterFunc),
@@ -84,6 +87,8 @@ export const DataTable = ({
               <Filter
                 onChange={filterVal => dispatch(actions.filter.set(filterVal))}
                 value={state.filterData.filter}
+                filteredCount={state.filteredCount}
+                totalCount={state.totalCount}
               />
             </th>
           </tr>
@@ -110,6 +115,8 @@ export const DataTable = ({
           <tr>
             <td colSpan={columns.length}>
               <Paging
+                filteredCount={state.filteredCount}
+                totalCount={state.totalCount}
                 pageData={state.pageData}
                 onPageSizeChange={size =>
                   dispatch(actions.paging.pageSize.set(size))

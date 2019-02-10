@@ -17,7 +17,12 @@ export const resetSortData = () => ({
   },
 });
 
-export const resetPageData = (currentPage, pageSize, pageSizeOptions, data = []) => ({
+export const resetPageData = (
+  currentPage,
+  pageSize,
+  pageSizeOptions,
+  data = [],
+) => ({
   currentPage,
   pageSize,
   totalPages: Math.ceil(data.length / pageSize),
@@ -50,8 +55,9 @@ const sortView = (direction, columnData, colIndex, view) => {
   return R.sort(direction(comparator), view);
 };
 
-const filterWith = filterData => data =>
-  filterData.filterFunc(filterData.filter, data);
+const filterWith = filterData => data => {
+  return filterData.filterFunc(filterData.filter, data);
+};
 
 const sortWith = sortData => data =>
   sortView(
@@ -66,12 +72,12 @@ const pageWith = pageData => data => {
   const end = begin + pageData.pageSize;
   return R.slice(begin, end)(data);
 };
-const calcDataView = (formattedData, filterData, sortData, pageData) =>
+
+const calcDataView = (filteredData, sortData, pageData) =>
   R.pipe(
-    filterWith(filterData),
     sortWith(sortData),
     pageWith(pageData),
-  )(formattedData);
+  )(filteredData);
 
 export const actions = createActions({
   data: {
@@ -92,14 +98,17 @@ export const actions = createActions({
 });
 
 const debug = f => (...args) => {
-  console.log('A: ', typeof args[1], args[1]);
+  console.log('A: ', args[1]);
   return f.apply(null, args);
 };
 
 export const reducer = handleActions(
   {
+    //
+    // page based on the filtered data
+    //
     [actions.paging.pageSize.set]: debug((state, {payload}) => {
-      const newTotalPages = Math.ceil(state.formattedData.length / payload);
+      const newTotalPages = Math.ceil(state.filteredData.length / payload);
       const newPageData = {
         ...state.pageData,
         pageSize: Number(payload),
@@ -109,12 +118,7 @@ export const reducer = handleActions(
       return {
         ...state,
         pageData: newPageData,
-        dataView: calcDataView(
-          state.formattedData,
-          state.filterData,
-          state.sortData,
-          newPageData,
-        ),
+        dataView: calcDataView(state.filteredData, state.sortData, newPageData),
       };
     }),
     [actions.paging.currentPage.set]: debug((state, {payload}) => ({
@@ -123,26 +127,41 @@ export const reducer = handleActions(
         ...state.pageData,
         currentPage: payload,
       },
-      dataView: calcDataView(
-        state.formattedData,
-        state.filterData,
-        state.sortData,
-        {...state.pageData, currentPage: payload},
-      ),
+      dataView: calcDataView(state.filteredData, state.sortData, {
+        ...state.pageData,
+        currentPage: payload,
+      }),
     })),
-    [actions.filter.set]: debug((state, {payload}) => ({
-      ...state,
-      filterData: {
-        ...state.filterData,
-        filter: payload,
-      },
-      dataView: calcDataView(
+    //
+    // filter the whole (formatted) data set
+    // filtering resets the currentPage to 1 and recalcs the total pages
+    //
+    [actions.filter.set]: debug((state, {payload}) => {
+      const filtered = filterWith({...state.filterData, filter: payload})(
         state.formattedData,
-        {...state.filterData, filter: payload},
-        state.sortData,
-        state.pageData,
-      ),
-    })),
+      );
+
+      const freshPageData = state.resetPageData(
+        1, // back to the first page
+        state.pageData.pageSize,
+        state.pageData.pageSizeOptions,
+        filtered,
+      );
+      return {
+        ...state,
+        filterData: {
+          ...state.filterData,
+          filter: payload,
+        },
+        pageData: freshPageData,
+        filteredData: filtered,
+        filteredCount: filtered.length,
+        dataView: calcDataView(filtered, state.sortData, freshPageData),
+      };
+    }),
+    //
+    // sort the filtered data
+    //
     [actions.sort]: debug((state, {payload}) => {
       const {colIndex} = payload;
       const newSortData = {
@@ -153,14 +172,12 @@ export const reducer = handleActions(
       return {
         ...state,
         sortData: newSortData,
-        dataView: calcDataView(
-          state.formattedData,
-          state.filterData,
-          newSortData,
-          state.pageData,
-        ),
+        dataView: calcDataView(state.filteredData, newSortData, state.pageData),
       };
     }),
+    //
+    // reset filter, sort, paging when new data shows up
+    //
     [actions.data.set]: debug((state, {payload: data}) => {
       const formatted = formatData(state.columns, data);
       const freshFilterData = state.resetFilterData(
@@ -173,19 +190,21 @@ export const reducer = handleActions(
         formatted,
       );
       const freshSortData = state.resetSortData();
+
       return {
         ...state,
         rawData: data,
+
         formattedData: formatted,
+        totalCount: formatted.length,
+
+        filteredData: formatted,
+        filteredCount: formatted.length,
+
         filterData: freshFilterData,
         sortData: freshSortData,
         pageData: freshPageData,
-        dataView: calcDataView(
-          formatted,
-          freshFilterData,
-          freshSortData,
-          freshPageData,
-        ),
+        dataView: calcDataView(formatted, freshSortData, freshPageData),
       };
     }),
   },

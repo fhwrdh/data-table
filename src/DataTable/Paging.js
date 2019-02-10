@@ -2,7 +2,13 @@ import React from 'react';
 import * as R from 'ramda';
 import Select from 'react-select';
 
-export const Paging = ({pageData, onPageSizeChange, onSetCurrentPage}) => {
+export const Paging = ({
+  pageData,
+  onPageSizeChange,
+  onSetCurrentPage,
+  filteredCount,
+  totalCount,
+}) => {
   const {pageSize, currentPage, totalPages, pageSizeOptions} = pageData;
   const colorOverride = '#999';
   return (
@@ -48,6 +54,7 @@ export const Paging = ({pageData, onPageSizeChange, onSetCurrentPage}) => {
           {`Next >`}
         </button>
       </div>
+      <div className="paging-total-records">{filteredCount} total records</div>
     </div>
   );
 };

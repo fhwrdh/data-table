@@ -123,10 +123,14 @@ export default () => (
       />
     </div>
     <div className="example">
-      <div className="title">Custom Filtering?</div>
-    </div>
-    <div className="example">
-      <div className="title">Kitchen Sink</div>
+      <DataTable
+        caption="Kitchen Sink: filtering, sorting, paging"
+        columns={columns}
+        data={makeRandomData(154)}
+        pageable
+        filterable
+        sortable
+      />
     </div>
   </div>
 );

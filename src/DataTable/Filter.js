@@ -19,14 +19,20 @@ export const defaultFilterData = (filterVal, dv) => {
   )(dv);
 };
 
-export const Filter = ({onChange, value}) => {
+export const Filter = ({onChange, value, filteredCount, totalCount}) => {
   return (
-    <input
-      type="text"
-      style={{padding: '4px', fontSize: '1em'}}
-      placeholder="Filter"
-      value={value}
-      onChange={e => onChange(e.target.value)}
-    />
+    <div className="filter">
+      <input
+        type="text"
+        className="filter-input"
+        style={{padding: '4px', fontSize: '1em'}}
+        placeholder="Filter"
+        value={value}
+        onChange={e => onChange(e.target.value)}
+      />
+      <span className="filter-counts">
+        {filteredCount} / {totalCount}
+      </span>
+    </div>
   );
 };
