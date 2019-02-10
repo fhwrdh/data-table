@@ -43,15 +43,6 @@ const defaultFormatters = {
   string: data => data.toString(),
 };
 
-const handleSort = direction => setter => (columnIndex, data, columnData) => {
-  const comparator = columnData.sort
-    ? columnData.sort(columnIndex)
-    : R.path([columnIndex, 'value']);
-  const newDataView = R.sort(direction(comparator), data);
-  // setter(newDataView);
-  return newDataView;
-};
-
 const formatData = (columns, data) => {
   const formatters = R.map(
     c => c.format || defaultFormatters[c.type || 'string'],
@@ -65,7 +56,6 @@ const formatData = (columns, data) => {
 };
 
 const filterData = (filterVal, dv) => {
-  console.log('filter.filterVal: ', filterVal);
   return R.filter(row =>
     R.gt(
       R.length(
@@ -83,10 +73,18 @@ const filterData = (filterVal, dv) => {
   )(dv);
 };
 
+const sortView = (direction, columnData, colIndex, view) => {
+  const comparator = columnData.sort
+    ? columnData.sort(colIndex)
+    : R.path([colIndex, 'value']);
+  return R.sort(direction(comparator), view);
+};
+
 const actions = createActions({
   dataView: {
     set: undefined,
   },
+  sort: (direction, colIndex) => ({direction, colIndex}),
   filter: {
     set: undefined,
   },
@@ -120,6 +118,20 @@ const makeReducer = initialState =>
         ...state,
         dataView: payload,
       }),
+      [actions.sort]: (state, {payload}) => {
+        const {direction, colIndex} = payload;
+        const sortedView = sortView(
+          state.sortMap[direction],
+          state.columns[colIndex],
+          colIndex,
+          state.dataView,
+        );
+        return {
+          ...state,
+          dataView: sortedView,
+          currentSort: payload,
+        };
+      },
     },
     initialState,
   );
@@ -147,13 +159,15 @@ export const DataTable = ({
     filterFunc,
     initialData: formattedData,
     dataView: formattedData,
+    columns,
+    currentSort: {},
+    sortMap: {
+      asc: R.ascend,
+      desc: R.descend,
+    },
   };
-  const [state, dispatch] = useReducer(makeReducer(initialState), initialState);
 
-  const handleAscSort = () =>
-    dispatch(actions.dataView.set(handleSort(R.ascend)));
-  const handleDescSort = () =>
-    dispatch(actions.dataView.set(handleSort(R.descend)));
+  const [state, dispatch] = useReducer(makeReducer(initialState), initialState);
 
   const filterRow = filterable ? (
     <tr className="filter-row">
@@ -192,8 +206,8 @@ export const DataTable = ({
             <HeaderCell
               key={i}
               sortable={sortable}
-              onAsc={() => handleAscSort(i, state.dataView, columns[i])}
-              onDesc={() => handleDescSort(i, state.dataView, columns[i])}
+              onAsc={() => dispatch(actions.sort('asc', i))}
+              onDesc={() => dispatch(actions.sort('desc', i))}
               columnData={columns[i]}
             />
           ))(columns)}
