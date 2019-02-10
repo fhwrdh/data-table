@@ -73,7 +73,7 @@ export default () => (
   <div className="App">
     <div className="example">
       <DataTable
-        caption="Simple: no sorting, filtering, paging"
+        caption="Simple: no sorting, no filtering, no paging"
         columns={columns}
         data={data}
       />
@@ -87,7 +87,8 @@ export default () => (
       />
       <p>TODO</p>
       <ul>
-        <li>active sort indicator</li>
+        <li>column-level sorting config</li>
+        <li>sortable indicator (hover?)</li>
       </ul>
     </div>
     <div className="example">

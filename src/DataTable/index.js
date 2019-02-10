@@ -2,8 +2,8 @@ import React, {useEffect, useReducer} from 'react';
 import * as R from 'ramda';
 import './data-table.css';
 import {Filter, defaultFilterData} from './Filter';
-import {Sorter} from './Sorter';
 import {Paging} from './Paging';
+import {HeaderCell} from './Header';
 import {
   actions,
   reducer,
@@ -13,19 +13,6 @@ import {
 } from './state';
 
 const mapIndex = R.addIndex(R.map);
-
-const HeaderCell = ({columnData, sortable, onAsc, onDesc}) => {
-  const type = columnData.type || 'string';
-  const alignment = columnData.align ? ` cell-align-${columnData.align}` : '';
-  return (
-    <th className={`cell-${type}`}>
-      <div className={`header-cell-wrapper cell-${type} ${alignment}`}>
-        <span className="header-cell-label">{columnData.label}</span>
-        {sortable && <Sorter onAscClick={onAsc} onDescClick={onDesc} />}
-      </div>
-    </th>
-  );
-};
 
 const Row = ({rowData, columnData}) => (
   <tr>
@@ -101,6 +88,7 @@ export const DataTable = ({
               onAsc={() => dispatch(actions.sort('asc', i))}
               onDesc={() => dispatch(actions.sort('desc', i))}
               columnData={columns[i]}
+              sortData={state.sortData}
             />
           ))(columns)}
         </tr>
