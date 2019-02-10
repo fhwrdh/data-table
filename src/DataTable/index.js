@@ -81,6 +81,51 @@ const sortView = (direction, columnData, colIndex, view) => {
   return R.sort(direction(comparator), view);
 };
 
+const filterWith = filterData => data =>
+  filterData.filterFunc(filterData.filter, data);
+
+const sortWith = sortData => data =>
+  sortView(
+    sortData.sortMap[sortData.direction],
+    sortData.column,
+    sortData.colIndex,
+    data,
+  );
+
+const pageWith = pageData => data => {
+  const begin = (pageData.currentPage - 1) * pageData.pageSize;
+  const end = begin + pageData.pageSize;
+  return R.slice(begin, end)(data);
+};
+
+const calcDataView = (formattedData, filterData, sortData, pageData) =>
+  R.pipe(
+    filterWith(filterData),
+    sortWith(sortData),
+    pageWith(pageData),
+  )(formattedData);
+
+const resetFilterData = filterFunc => ({
+  filter: '',
+  filterFunc,
+});
+
+const resetSortData = () => ({
+  direction: '',
+  colIndex: undefined,
+  column: undefined,
+  sortMap: {
+    asc: R.ascend,
+    desc: R.descend,
+  },
+});
+
+const resetPageData = (currentPage, pageSize, pageSizeOptions, data = []) => ({
+  currentPage,
+  pageSize,
+  totalPages: Math.ceil(data.length / pageSize),
+  pageSizeOptions,
+});
 const actions = createActions({
   data: {
     set: undefined,
@@ -171,49 +216,34 @@ const reducer = handleActions(
     }),
     [actions.data.set]: debug((state, {payload: data}) => {
       const formatted = formatData(state.columns, data);
-      const dv = calcDataView(
-        formatted,
-        state.filterData,
-        state.sortData,
-        state.pageData,
+      const freshFilterData = state.resetFilterData(
+        state.filterData.filterFunc,
       );
+      const freshPageData = state.resetPageData(
+        1,
+        state.pageData.pageSize,
+        state.pageData.pageSizeOptions,
+        formatted,
+      );
+      const freshSortData = state.resetSortData();
       return {
         ...state,
         rawData: data,
         formattedData: formatted,
-        dataView: dv,
-
-        // todo: reset all the filtering, sorting, paging data...
-        totalPages: Math.ceil(formatted.length / state.pageSize),
+        filterData: freshFilterData,
+        sortData: freshSortData,
+        pageData: freshPageData,
+        dataView: calcDataView(
+          formatted,
+          freshFilterData,
+          freshSortData,
+          freshPageData,
+        ),
       };
     }),
   },
   {},
 );
-
-const filterWith = filterData => data =>
-  filterData.filterFunc(filterData.filter, data);
-
-const sortWith = sortData => data =>
-  sortView(
-    sortData.sortMap[sortData.direction],
-    sortData.column,
-    sortData.colIndex,
-    data,
-  );
-
-const pageWith = pageData => data => {
-  const begin = (pageData.currentPage - 1) * pageData.pageSize;
-  const end = begin + pageData.pageSize;
-  return R.slice(begin, end)(data);
-};
-
-const calcDataView = (formattedData, filterData, sortData, pageData) =>
-  R.pipe(
-    filterWith(filterData),
-    sortWith(sortData),
-    pageWith(pageData),
-  )(formattedData);
 
 export const DataTable = ({
   caption = 'table caption required',
@@ -225,37 +255,25 @@ export const DataTable = ({
   pageable = false,
   currentPage = 1,
   pageSize = 10,
+  pageSizeOptions = [10, 25, 50, 100, 500],
 }) => {
-  // sort based on the raw data + sorting function
-  // filter based on the formatted data
-  const formattedData = formatData(columns, data);
-
   const initialState = {
-    pageData: {
-      currentPage,
-      pageSize,
-      totalPages: Math.ceil(formattedData.length / pageSize),
-    },
-    filterData: {
-      filter: '',
-      filterFunc,
-    },
-    sortData: {
-      direction: '',
-      colIndex: undefined,
-      column: undefined,
-      sortMap: {
-        asc: R.ascend,
-        desc: R.descend,
-      },
-    },
-    // data
     columns,
     rawData: [],
     formattedData: [],
     dataView: [],
+
+    filterData: resetFilterData(filterFunc),
+    sortData: resetSortData(),
+    pageData: resetPageData(currentPage, pageSize, pageSizeOptions),
+
+    resetFilterData,
+    resetSortData,
+    resetPageData,
   };
+
   const [state, dispatch] = useReducer(reducer, initialState);
+
   useEffect(() => {
     dispatch(actions.data.set(data));
   }, [data]);
@@ -296,12 +314,10 @@ export const DataTable = ({
           <tr>
             <td colSpan={columns.length}>
               <Paging
-                pageSize={state.pageData.pageSize}
+                pageData={state.pageData}
                 onPageSizeChange={size =>
                   dispatch(actions.paging.pageSize.set(size))
                 }
-                currentPage={state.pageData.currentPage}
-                totalPages={state.pageData.totalPages}
                 onSetCurrentPage={pageNumber =>
                   dispatch(actions.paging.currentPage.set(pageNumber))
                 }

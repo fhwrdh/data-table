@@ -1,15 +1,8 @@
 import React from 'react';
-// import * as R from 'ramda';
 import {mapIndex} from '../utils';
 
-export const Paging = ({
-  pageSize,
-  pageSizeOptions = [10, 25, 50, 100, 500],
-  onPageSizeChange,
-  currentPage,
-  totalPages,
-  onSetCurrentPage,
-}) => {
+export const Paging = ({pageData, onPageSizeChange, onSetCurrentPage}) => {
+  const {pageSize, currentPage, totalPages, pageSizeOptions} = pageData;
   return (
     <div>
       <div>
