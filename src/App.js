@@ -107,12 +107,6 @@ export default () => (
         columns={columns}
         data={data}
       />
-      <p>TODO</p>
-      <ul>
-        <li>column-level sorting config</li>
-        <li>sortable indicator (hover?)</li>
-        <li>initial sort column config</li>
-      </ul>
     </div>
     <div className="example">
       <DataTable
@@ -129,14 +123,6 @@ export default () => (
         data={data}
         filterable
       />
-      <p>TODO</p>
-      <ul>
-        <li>initial filter value</li>
-        <li>filter per column</li>
-        <li>regex option (toggleable)</li>
-        <li>highlight match (toggle-able?)</li>
-        <li>column-level opt-out from global filtering (row num)</li>
-      </ul>
     </div>
     <div className="example">
       <DataTable
