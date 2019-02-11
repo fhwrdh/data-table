@@ -7,13 +7,14 @@ npm i
 npm run start
 ```
 
-## Todo
+## Todos
 
 ### Layout
 
 - thought out API for layout
   - nowrap / ellipsis
   - responsive / stack
+- custom component rendering of cells
 
 ### Sorting
 
@@ -29,6 +30,14 @@ npm run start
 - case sensitivity option
 - hightlight match
 - column level opt-out from global filtering (row num)
+- custom component rendering
+- date picker?
+
+### Paging
+
+- direct input of page number
+- custom component rendering
+- render at top and bottom of table config
 
 ## Reading
 
