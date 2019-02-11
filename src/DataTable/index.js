@@ -24,8 +24,14 @@ const Row = ({rowData, columnData}) => (
 
 const Cell = ({cellData, columnData}) => {
   const type = columnData.type || 'string';
-  const alignment = columnData.align ? ` cell-align-${columnData.align}` : '';
-  return <td className={`cell-${type}${alignment}`}>{cellData.formatted}</td>;
+  const alignment = columnData.align ? `cell-align-${columnData.align}` : '';
+  const ellipsis = columnData.ellipsis ? `cell-ellipsis` : '';
+  const nowrap = columnData.nowrap ? `cell-nowrap` : '';
+  return (
+    <td className={`cell-${type} ${alignment} ${ellipsis} ${nowrap}`}>
+      {cellData.formatted}
+    </td>
+  );
 };
 
 export const DataTable = ({
@@ -64,26 +70,22 @@ export const DataTable = ({
     dispatch(actions.data.set(data));
   }, [data]);
 
+  const widths = R.pluck('width')(columns);
+
   return (
-    <div className="data-table">
+    <div className="data-table-panel">
       <div className="data-table-container">
-        <table className="table">
+        {filterable && (
+          <Filter
+            onChange={filterVal => dispatch(actions.filter.set(filterVal))}
+            value={state.filterData.filter}
+            filteredCount={state.filteredCount}
+            totalCount={state.totalCount}
+          />
+        )}
+        <table className="table debug">
           <caption>{caption}</caption>
           <thead>
-            {filterable && (
-              <tr className="filter-row">
-                <th>
-                  <Filter
-                    onChange={filterVal =>
-                      dispatch(actions.filter.set(filterVal))
-                    }
-                    value={state.filterData.filter}
-                    filteredCount={state.filteredCount}
-                    totalCount={state.totalCount}
-                  />
-                </th>
-              </tr>
-            )}
             <tr className="header-row">
               {mapIndex((c, i) => (
                 <HeaderCell
@@ -93,6 +95,7 @@ export const DataTable = ({
                   onDesc={() => dispatch(actions.sort('desc', i))}
                   columnData={columns[i]}
                   sortData={state.sortData}
+                  width={widths[i]}
                 />
               ))(columns)}
             </tr>

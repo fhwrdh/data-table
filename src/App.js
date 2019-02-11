@@ -2,7 +2,7 @@ import React from 'react';
 import * as R from 'ramda';
 import './App.css';
 import {DataTable} from './DataTable';
-import {makeRandomData} from './data';
+import {makeRandomData, makeRandomLongData} from './data';
 import {
   now,
   getMonthName,
@@ -14,22 +14,41 @@ import {
 } from './utils';
 
 const columns = [
-  {label: 'Row', type: 'string', align: 'center'},
+  {label: 'Row', width: '10%'},
   {label: 'First Name'},
   {label: 'Last Name'},
-  {label: 'Rank', type: 'number'},
+  {label: 'Rank', type: 'number', width: '10%'},
   {
     label: 'Balance',
     type: 'money',
+    width: '10%',
   },
   {
     label: 'Date',
     type: 'date',
+    width: '25%',
+  },
+];
+
+const longDataColumns = [
+  {label: 'Row', width: '5%'},
+  {label: 'First Name', width: '10%'},
+  {label: 'Last Name', width: '10%'},
+  {label: 'Description', ellipsis: true},
+  {
+    label: 'Balance',
+    type: 'money',
+    width: '10%',
+  },
+  {
+    label: 'Date',
+    type: 'date',
+    nowrap: true,
   },
 ];
 
 const customRenderSortColumns = [
-  {label: 'Row', type: 'number', align: 'center'},
+  {label: 'Row', type: 'number', align: 'center', width: '7%'},
   {
     label: 'First Name (second letter)',
     sort: i => d => d[i].value[1],
@@ -45,15 +64,18 @@ const customRenderSortColumns = [
     type: 'number',
     sort: i => d => reverseInt(d[i].value),
     format: d => `${d} (${reverse(d)})`,
+    width: '15%',
   },
   {
     label: 'Balance (cents)',
     type: 'money',
     sort: i => data => (data[i].value % 1).toFixed(2),
     format: d => <Money data={d} />,
+    width: '15%',
   },
   {
     label: 'Date (month)',
+    width: '15%',
     type: 'date',
     sort: i => data => getMonthName(data[i].value),
     format: getMonthName,
@@ -129,6 +151,17 @@ export default () => (
         caption="Kitchen Sink: filtering, sorting, paging"
         columns={columns}
         data={makeRandomData(154)}
+        pageable
+        filterable
+        sortable
+      />
+    </div>
+    <div className="example">
+      <title>With data that challenges the layout</title>
+      <DataTable
+        caption="With data that challenges the layout"
+        columns={longDataColumns}
+        data={makeRandomLongData(23)}
         pageable
         filterable
         sortable

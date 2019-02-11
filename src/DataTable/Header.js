@@ -4,7 +4,14 @@ import * as Icons from './Icons';
 
 const sortedLabel = R.view(R.lensPath(['column', 'label']));
 
-export const HeaderCell = ({sortData, columnData, sortable, onAsc, onDesc}) => {
+export const HeaderCell = ({
+  sortData,
+  columnData,
+  sortable,
+  onAsc,
+  onDesc,
+  width,
+}) => {
   // possible states:
   //   not sortable
   //     => do nothing
@@ -21,9 +28,13 @@ export const HeaderCell = ({sortData, columnData, sortable, onAsc, onDesc}) => {
   const activeDirection = activeSort && sortData.direction;
   const onClick = activeDirection === 'desc' ? onAsc : onDesc;
   // console.log({sortData, columnData, activeSort, activeDirection, onClick});
+  //
+
+  const style = {};
+  if (width) style.width = width;
 
   return (
-    <th scope="col" className={`cell-${type}`}>
+    <th scope="col" className={`cell-${type}`} style={style}>
       <div className={`header-cell-wrapper cell-${type} ${alignment}`}>
         {sortable ? (
           <span onClick={onClick} className={`header-cell-label sortable`}>

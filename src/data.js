@@ -13,3 +13,16 @@ export const makeRandomData = count => {
     ];
   })(R.range(0, count));
 };
+
+export const makeRandomLongData = count => {
+  return R.map(i => {
+    return [
+      i,
+      Rnd.femaleFirstName(),
+      Rnd.lastName(),
+      Rnd.sentence(3, 12),
+      Rnd.float(-1000, 1000, 0, 99, 2),
+      new Date(Rnd.datetime()),
+    ];
+  })(R.range(0, count));
+};
