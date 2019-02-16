@@ -97,8 +97,9 @@ export const actions = createActions({
   },
 });
 
+const DEBUG = false;
 const debug = f => (...args) => {
-  console.log('A: ', args[1]);
+  DEBUG && console.log('DEBUG: ', args[1]);
   return f.apply(null, args);
 };
 
