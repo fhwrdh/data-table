@@ -25,9 +25,12 @@
   "devDependencies": {
     "@mdi/js": "^3.4.93",
     "@mdi/react": "^1.1.0",
+    "classnames": "^2.2.6",
     "generate-random-data": "0.0.3",
+    "jest-dom": "^3.1.2",
     "ramda": "^0.26.1",
     "react-select": "^2.3.0",
+    "react-testing-library": "^5.8.0",
     "redux-actions": "^2.6.4"
   }
 }

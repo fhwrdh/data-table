@@ -1,5 +1,6 @@
 import React, {useEffect, useReducer} from 'react';
 import * as R from 'ramda';
+import cn from 'classnames';
 import './data-table.css';
 import {Filter, defaultFilterData} from './Filter';
 import {Paging} from './Paging';
@@ -22,13 +23,17 @@ const Row = ({rowData, columnData}) => (
   </tr>
 );
 
-const Cell = ({cellData, columnData}) => {
-  const type = columnData.type || 'string';
-  const alignment = columnData.align ? `cell-align-${columnData.align}` : '';
-  const ellipsis = columnData.ellipsis ? `cell-ellipsis` : '';
-  const nowrap = columnData.nowrap ? `cell-nowrap` : '';
+export const Cell = ({cellData, columnData}) => {
+  const classes = cn({
+    'cell-string': !columnData.type,
+    [`cell-${columnData.type}`]: !!columnData.type,
+    'cell-nowrap': columnData.noWrap,
+    'cell-ellipsis': columnData.ellipsis,
+    [`cell-align-${columnData.align}`]: columnData.align,
+  });
+
   return (
-    <td className={`cell-${type} ${alignment} ${ellipsis} ${nowrap}`}>
+    <td data-testid="cell" className={classes}>
       {cellData.formatted}
     </td>
   );
