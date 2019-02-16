@@ -1,10 +1,7 @@
 import React from 'react';
-// import * as R from 'ramda';
-import {cleanup, render, prettyDOM} from 'react-testing-library';
-import {Cell} from '../';
-import 'jest-dom/extend-expect';
-
-afterEach(cleanup);
+import {render} from 'react-testing-library';
+import {debugDOM} from '../../testUtils';
+import {Cell} from '../Cell';
 
 describe('<Cell />', () => {
   const containsClass = (node, klass) => {
@@ -123,23 +120,3 @@ describe('<Cell />', () => {
     expect(containsClass(cell, 'cell-nowrap')).toBeTruthy();
   });
 });
-
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//

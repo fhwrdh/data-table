@@ -1,10 +1,10 @@
 import React, {useEffect, useReducer} from 'react';
 import * as R from 'ramda';
-import cn from 'classnames';
 import './data-table.css';
 import {Filter, defaultFilterData} from './Filter';
 import {Paging} from './Paging';
 import {HeaderCell} from './Header';
+import {Row} from './Row';
 import {
   actions,
   reducer,
@@ -14,30 +14,6 @@ import {
 } from './state';
 
 const mapIndex = R.addIndex(R.map);
-
-const Row = ({rowData, columnData}) => (
-  <tr>
-    {mapIndex((cellData, i) => (
-      <Cell key={i} cellData={cellData} columnData={columnData[i]} />
-    ))(rowData)}
-  </tr>
-);
-
-export const Cell = ({cellData, columnData}) => {
-  const classes = cn({
-    'cell-string': !columnData.type,
-    [`cell-${columnData.type}`]: !!columnData.type,
-    'cell-nowrap': columnData.noWrap,
-    'cell-ellipsis': columnData.ellipsis,
-    [`cell-align-${columnData.align}`]: columnData.align,
-  });
-
-  return (
-    <td data-testid="cell" className={classes}>
-      {cellData.formatted}
-    </td>
-  );
-};
 
 export const DataTable = ({
   caption = 'table caption required',
