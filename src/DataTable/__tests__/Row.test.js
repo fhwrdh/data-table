@@ -1,6 +1,5 @@
 import React from 'react';
-import {render} from 'react-testing-library';
-import {debugDOM} from '../../testUtils';
+import {render, debugDOM} from '../../testUtils';
 import {Row} from '../Row';
 
 describe('<Row />', () => {

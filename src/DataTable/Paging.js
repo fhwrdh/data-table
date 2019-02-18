@@ -15,6 +15,8 @@ export const Paging = ({
     <div className="paging">
       <div>
         <Select
+          classNamePrefix="paging-select"
+          className="paging-select"
           value={{value: pageSize, label: `${pageSize} per page`}}
           options={R.map(value => ({value, label: `${value} per page`}))(
             pageSizeOptions,
