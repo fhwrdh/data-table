@@ -41,19 +41,21 @@ export const Paging = ({
       </div>
       <div className="paging-controls">
         <button
+          data-testid="paging-prev-button"
           className="paging-button paging-button-prev"
           onClick={() => onSetCurrentPage(currentPage - 1)}
           disabled={currentPage === 1}>
           {`< Previous`}
         </button>
-        <div className="paging-page">
+        <div data-testid="paging-page" className="paging-page">
           {currentPage} / {totalPages}
         </div>
         <button
+          data-testid="paging-next-button"
           className="paging-button paging-button-next"
           onClick={() => onSetCurrentPage(currentPage + 1)}
           disabled={currentPage === totalPages}>
-          {`Next >`}
+          j {`Next >`}
         </button>
       </div>
       <div className="paging-total-records">{filteredCount} total records</div>
